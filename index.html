@@ -1,0 +1,1057 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Point First</title>
+<meta name="description" content="Daily practice for clear speaking and writing.">
+<meta name="theme-color" content="#F5F6FA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0C1022" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Point First">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<style>html{color-scheme:light;background:var(--bg);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Mono:wght@500&family=Figtree:wght@500;700;800&display=swap">
+<style>
+/* Layout: one narrow column. Identity is the highlighter: the point gets marked in yellow, everything else is ink on cool paper.
+   Home = stat tags, progress panel, yellow next-up card, timeline path, plain practice rows. Lesson = thin progress line, inline feedback, sticky action bar. */
+:root{
+  --bg:#F5F6FA; --surface:#FFFFFF; --ink:#0F1630; --muted:#59627D; --line:#D9DDE8;
+  --hl:#FFE24A; --hl-soft:#FFF3B0; --on-hl:#0F1630;
+  --good:#0B7A53; --good-bg:#DDF3EA; --bad:#BF3434; --bad-bg:#FCE4E2; --mark:#FFE24A;
+  --font-display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;
+  --font-body:'Figtree','Segoe UI',system-ui,sans-serif;
+  --font-mono:'DM Mono',ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0C1022; --surface:#151A33; --ink:#EDEFFA; --muted:#9AA2C0; --line:#2B3257;
+    --hl:#FFD93D; --hl-soft:#3A3412; --on-hl:#0F1630;
+    --good:#4DD3A0; --good-bg:#0F3328; --bad:#FF8F8F; --bad-bg:#3A1B1F; --mark:#7A6318;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0C1022; --surface:#151A33; --ink:#EDEFFA; --muted:#9AA2C0; --line:#2B3257;
+  --hl:#FFD93D; --hl-soft:#3A3412; --on-hl:#0F1630;
+  --good:#4DD3A0; --good-bg:#0F3328; --bad:#FF8F8F; --bad-bg:#3A1B1F; --mark:#7A6318;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  background:var(--bg);color:var(--ink);font:500 16px/1.55 var(--font-body);
+  padding-block:18px 56px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+body.inlesson{padding-bottom:0}
+.wrap{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:24px}
+.wrap.lesson{min-height:calc(100vh - 18px);min-height:calc(100dvh - 18px)}
+h1,h2,h3{margin:0;font-family:var(--font-display);font-weight:800;line-height:1.12;letter-spacing:-.01em;text-wrap:balance}
+h1{font-size:clamp(2rem,9vw,2.6rem)}
+h2{font-size:1.4rem}
+p{margin:0}
+.muted{color:var(--muted)}
+.hint{color:var(--muted);font-size:.9rem}
+.mono,.eyebrow{font:500 .72rem/1.3 var(--font-mono);letter-spacing:.1em;text-transform:uppercase}
+.eyebrow{color:var(--muted)}
+.sr{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.hl{background:var(--hl);color:var(--on-hl);padding:0 .22em;border-radius:3px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+
+/* home */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.logo{font:800 1.7rem/1 var(--font-display);letter-spacing:-.02em}
+.tags{display:flex;gap:8px}
+.tag{display:flex;align-items:baseline;gap:8px;border:2px solid var(--ink);border-radius:8px;padding:7px 10px;font:500 .72rem/1 var(--font-mono);letter-spacing:.08em;text-transform:uppercase}
+.tag b{font-size:1rem;font-weight:500;font-variant-numeric:tabular-nums}
+.panel{background:var(--surface);border:2px solid var(--ink);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:18px}
+.meter{display:flex;flex-direction:column;gap:8px}
+.mrow{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+.mrow .t{display:block;font:800 1.2rem/1.2 var(--font-display)}
+.mrow .n{font:500 .85rem var(--font-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.bar,.prog{height:12px;background:var(--bg);border:2px solid var(--ink);border-radius:8px;overflow:hidden}
+.bar i,.prog i{display:block;height:100%;background:var(--hl)}
+@media (prefers-reduced-motion:no-preference){.bar i,.prog i{transition:width .5s}}
+.next{background:var(--hl);color:var(--on-hl);border:2px solid var(--on-hl);border-radius:14px;padding:16px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.next .l{display:flex;flex-direction:column;gap:4px;min-width:0}
+.next .l b{font:800 1.25rem/1.2 var(--font-display)}
+.next .eyebrow{color:var(--on-hl);opacity:.75}
+.next .btn{background:var(--on-hl);color:var(--hl)}
+.sec{display:flex;flex-direction:column;gap:12px}
+
+.path{display:flex;flex-direction:column;gap:14px}
+.uhead{display:flex;align-items:center;gap:14px;padding:6px 0}
+.unum{flex:none;width:44px;height:44px;border:2px solid var(--ink);border-radius:10px;display:grid;place-items:center;font:800 1.5rem/1 var(--font-display)}
+.unum.done{background:var(--hl);color:var(--on-hl);border-color:var(--on-hl)}
+.ut{flex:1;min-width:0;display:flex;flex-direction:column}
+.ut b{font:800 1.2rem/1.2 var(--font-display)}
+.ut span{color:var(--muted);font-size:.9rem}
+.up{color:var(--muted);font-variant-numeric:tabular-nums}
+.rail{list-style:none;margin:0 0 0 21px;padding:0;border-left:2px solid var(--line)}
+.rail li{position:relative}
+.lrow{display:flex;align-items:center;gap:12px;width:100%;padding:12px 10px 12px 28px;background:none;border:0;border-radius:0 12px 12px 0;text-align:left;font:inherit;color:inherit;cursor:pointer}
+.lrow:hover{background:var(--surface)}
+.lrow:focus-visible{outline:3px solid var(--ink);outline-offset:-3px}
+.dotn{position:absolute;left:-10px;top:50%;margin-top:-9px;width:18px;height:18px;border-radius:50%;border:2px solid var(--ink);background:var(--bg);display:grid;place-items:center;color:var(--bg)}
+.lrow.done .dotn{background:var(--ink)}
+.lrow.cur{background:var(--hl-soft)}
+.lrow.cur .dotn{background:var(--hl);box-shadow:0 0 0 4px var(--hl-soft)}
+.lrow.lock .dotn{border-style:dashed;border-color:var(--muted)}
+.ltxt{flex:1;min-width:0;display:flex;flex-direction:column}
+.ltxt b{font-weight:800}
+.ltxt span{color:var(--muted);font-size:.9rem}
+.lrow.lock .ltxt b{color:var(--muted)}
+.lst{flex:none;font:500 .72rem/1 var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.lst.go{background:var(--hl);color:var(--on-hl);padding:7px 10px;border-radius:6px}
+
+.rows{display:flex;flex-direction:column;gap:10px}
+.prow{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;text-align:left;font:inherit;color:inherit;background:var(--surface);border:2px solid var(--line);border-radius:12px;padding:14px;cursor:pointer}
+.prow:hover{border-color:var(--ink)}
+.prow:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.ptxt{display:flex;flex-direction:column;gap:2px;min-width:0}
+.ptxt b{font:800 1.15rem/1.2 var(--font-display)}
+.ptxt .d{color:var(--muted);font-size:.95rem}
+.pxp{flex:none;color:var(--muted);white-space:nowrap}
+
+.trend{display:flex;align-items:flex-end;gap:8px;min-height:100px}
+.col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;min-width:0}
+.col .b{width:100%;max-width:36px;border-radius:4px 4px 0 0;background:var(--ink)}
+.col .b.ok{background:var(--good)}
+.col .v{font:500 .72rem/1 var(--font-mono);color:var(--muted)}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.bdg{border:2px dashed var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.bdg b{font:800 1rem/1.2 var(--font-display)}
+.bdg .d{font-size:.85rem;color:var(--muted)}
+.bdg .st{color:var(--muted)}
+.bdg.on{border:2px solid var(--ink);background:var(--hl-soft)}
+.bdg.on .st{color:var(--good)}
+.foot{display:flex;flex-direction:column;gap:12px;font-size:.9rem;color:var(--muted)}
+
+/* buttons */
+.btn{font:800 1rem var(--font-body);min-height:50px;padding:0 22px;border-radius:10px;border:2px solid var(--on-hl);background:var(--hl);color:var(--on-hl);cursor:pointer}
+.btn:hover{filter:brightness(.96)}
+.btn:active{transform:translateY(1px)}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.ghost:hover{border-color:var(--ink);filter:none}
+.btn:disabled{background:var(--line);color:var(--muted);border-color:var(--line);cursor:not-allowed;filter:none;transform:none}
+.btn:focus-visible,.quit:focus-visible,summary:focus-visible,textarea:focus-visible,.opt:focus-visible,.tok:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.btns{display:flex;gap:12px;flex-wrap:wrap}
+.btns.col2{flex-direction:column}
+.btns.col2 .btn{width:100%}
+
+/* lesson shell */
+.lhead{display:flex;flex-direction:column;gap:10px}
+.ltop{display:flex;align-items:center;gap:14px}
+.quit{display:flex;align-items:center;gap:6px;background:none;border:0;padding:6px 4px;color:var(--muted);font:700 .95rem var(--font-body);cursor:pointer;border-radius:8px}
+.quit:hover{color:var(--ink)}
+.prog{flex:1}
+.rc{font:500 .8rem var(--font-mono);color:var(--muted);min-width:2.4em;text-align:right}
+.ltitle{font-size:1.6rem}
+.stepbody{display:flex;flex-direction:column;gap:16px}
+.prompt{display:flex;flex-direction:column;gap:6px}
+.lfoot{position:sticky;bottom:0;z-index:5;background:var(--bg);border-top:2px solid var(--line);padding:12px 0 calc(12px + env(safe-area-inset-bottom,0px));margin-top:auto}
+.lfoot .btn{width:100%}
+.frow{display:flex;gap:10px}
+.frow .btn{flex:1}
+
+/* step types */
+.teach{display:flex;flex-direction:column;gap:14px}
+.tcard{background:var(--surface);border:2px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;font-size:1.05rem}
+.eg{border-left:6px solid var(--good);background:var(--good-bg);border-radius:4px 10px 10px 4px;padding:10px 14px}
+.eg.bad{border-left-color:var(--bad);background:var(--bad-bg)}
+.eg b{display:block;font:500 .72rem/1.4 var(--font-mono);letter-spacing:.1em;text-transform:uppercase}
+.ctx{background:var(--surface);border:2px solid var(--line);border-radius:12px;padding:12px 14px}
+.ctx b{display:block;font:500 .72rem/1.4 var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.sent{font-size:1.2rem;font-weight:700;line-height:1.7}
+.blank{display:inline-block;min-width:5.5em;text-align:center;padding:0 8px;background:var(--hl);color:var(--on-hl);border-radius:4px}
+.opts,.pool{display:flex;flex-direction:column;gap:10px}
+.opt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:600 1rem/1.4 var(--font-body);color:var(--ink);background:var(--surface);border:2px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--ink)}
+.opt .k{flex:none;width:28px;height:28px;border:2px solid var(--line);border-radius:6px;display:grid;place-items:center;font:500 .8rem var(--font-mono);color:var(--muted)}
+.opt.sel{border-color:var(--ink);background:var(--hl-soft)}
+.opt.sel .k{border-color:var(--ink);background:var(--hl);color:var(--on-hl)}
+.opt.ok{border-color:var(--good);background:var(--good-bg)}
+.opt.no{border-color:var(--bad);background:var(--bad-bg)}
+.opt:disabled{cursor:default}
+.slots{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.slot{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;align-items:center;min-height:60px;border:2px dashed var(--line);border-radius:12px;padding:4px 6px 4px 10px}
+.sn{font:500 .9rem var(--font-mono);color:var(--muted);text-align:center}
+.slot .opt{padding:10px 12px}
+.toks{display:flex;flex-wrap:wrap;gap:10px;line-height:1.2}
+.tok{font:700 1.05rem var(--font-body);color:var(--ink);background:var(--surface);border:2px solid var(--line);border-radius:8px;padding:8px 12px;cursor:pointer}
+.tok:hover:not(:disabled){border-color:var(--ink)}
+.tok.sel{border-color:var(--ink);background:var(--hl);color:var(--on-hl)}
+.tok.ok{border-color:var(--good);background:var(--good-bg)}
+.tok.no{border-color:var(--bad);background:var(--bad-bg)}
+.tok.miss{border-style:dashed;border-color:var(--ink);background:var(--hl-soft)}
+.tok:disabled{cursor:default}
+.hintbox{border:2px solid var(--line);border-radius:12px;padding:10px 14px;background:var(--surface)}
+.hintbox summary{cursor:pointer;font-weight:800}
+.hintbox p{margin-top:8px}
+.tangle{margin:0;border-left:6px solid var(--bad);background:var(--bad-bg);border-radius:4px 10px 10px 4px;padding:12px 14px;font-size:1.05rem}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-weight:800}
+textarea{font:500 1rem/1.5 var(--font-body);width:100%;min-height:84px;padding:12px 14px;background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:12px;resize:vertical}
+textarea:focus-visible{border-color:var(--ink)}
+.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:6px}
+.timer{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.clock{font:500 2.2rem/1 var(--font-mono);font-variant-numeric:tabular-nums;border:2px solid var(--ink);border-radius:10px;padding:8px 14px;background:var(--surface)}
+.warn{border:2px solid var(--bad);border-radius:12px;padding:12px 14px;background:var(--bad-bg)}
+
+/* inline feedback */
+.fb{--fc:var(--ink);--fbg:var(--hl-soft);background:var(--fbg);border:2px solid var(--fc);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:14px}
+.fb.good{--fc:var(--good);--fbg:var(--good-bg)}
+.fb.bad{--fc:var(--bad);--fbg:var(--bad-bg)}
+@media (prefers-reduced-motion:no-preference){.fb{animation:rise .2s ease-out}@keyframes rise{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}}
+.fbh{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.fbh h3{font-size:1.35rem}
+.fbi{display:grid;place-items:center;width:28px;height:28px;border-radius:6px;background:var(--fc);color:var(--bg)}
+.fb.mid .fbi{background:var(--hl);color:var(--on-hl);border:2px solid var(--on-hl)}
+.xpchip{margin-left:auto;font:500 .8rem var(--font-mono);background:var(--hl);color:var(--on-hl);padding:5px 8px;border-radius:6px}
+.checks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.checks li{display:grid;grid-template-columns:24px minmax(0,1fr);gap:10px;align-items:start}
+.cm{width:24px;height:24px;border-radius:6px;display:grid;place-items:center}
+.cm.p{background:var(--good);color:var(--bg)}
+.cm.f{background:var(--bad);color:var(--bg)}
+.tip{display:block;font-weight:500;font-size:.92rem;color:var(--muted)}
+.fb details{border:2px solid var(--line);border-radius:12px;padding:10px 14px;background:var(--surface);color:var(--ink)}
+.fb summary{cursor:pointer;font-weight:800}
+.fb details p+p{margin-top:8px}
+.fb ol{margin:6px 0 0;padding-left:1.3em}
+.fb .btns .btn{flex:1;min-width:130px}
+.stats{display:flex;gap:24px;flex-wrap:wrap}
+.stat{display:flex;flex-direction:column;gap:2px}
+.stat b{font:800 1.5rem/1.1 var(--font-display)}
+.stat span{font-size:.82rem;color:var(--muted)}
+.tx{background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:12px 14px;line-height:1.9;overflow-wrap:anywhere}
+mark.fill{background:var(--mark);color:var(--on-hl);padding:0 2px;border-radius:3px}
+.long{text-decoration:underline wavy var(--bad);text-underline-offset:5px}
+.callout{border-left:6px solid var(--bad);padding:2px 0 2px 12px}
+
+/* done */
+.done{display:flex;flex-direction:column;gap:20px;padding-top:12px}
+.strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:2px solid var(--ink);border-radius:12px;overflow:hidden;background:var(--surface)}
+.cell{padding:16px 8px;text-align:center;display:flex;flex-direction:column;gap:4px}
+.cell+.cell{border-left:2px solid var(--ink)}
+.cell b{font:800 1.9rem/1 var(--font-display);font-variant-numeric:tabular-nums}
+.cell span{font:500 .68rem/1.3 var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+#toast{position:fixed;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));top:calc(12px + env(safe-area-inset-top,0px));max-width:608px;margin:0 auto;background:var(--ink);color:var(--bg);padding:12px 16px;border-radius:10px;font-weight:700;z-index:30;text-align:center}
+</style>
+
+</head>
+<body>
+<main class="wrap" id="app"></main>
+<div id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+// ==LOGIC==
+const FILLER_RES=[
+  ['um / uh',/\b(?:um+|uh+|uhm|er|ah)\b/gi],
+  ['you know',/\byou know\b/gi],
+  ['kind of / sort of',/\b(?:kind|sort) of\b/gi],
+  ['I mean',/\bi mean\b/gi],
+  ['I guess',/\bi guess\b/gi],
+  ['I feel like',/\bi feel like\b/gi],
+  ['basically',/\bbasically\b/gi],
+  ['literally',/\bliterally\b/gi],
+  ['actually',/\bactually\b/gi],
+  ['honestly',/\bhonestly\b/gi],
+  ['like (filler)',/\blike,|,\s*like\b/gi]
+];
+const HL_RE=new RegExp(FILLER_RES.map(function(x){return x[1].source}).join('|'),'gi');
+const VAGUE=/\b(?:a lot|lots of|stuff|things?|good|bad|nice|great|very|really|many|various|whatever|somehow|something)\b/gi;
+const NUMWORDS=/\b(?:two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|twenty|thirty|forty|fifty|hundred|thousand|half|dozen|twice)\b/gi;
+const HEDGE=/^(?:so+|well|um+|uh+|like|i guess|i feel like|i think maybe|basically|honestly|kind of|sort of|i mean|you know|it'?s like|the thing is)\b/i;
+
+function words(t){return String(t).match(/[a-z0-9$%]+(?:['’.\-][a-z0-9$%]+)*/gi)||[]}
+function sentences(t){
+  var s=String(t).replace(/[ \t\r]+/g,' ').replace(/\n+/g,'\u0001').replace(/([.!?]+)(\s+|$)/g,'$1\u0001');
+  return s.split('\u0001').map(function(x){return x.trim()}).filter(Boolean);
+}
+function fillerStats(text){
+  var by={},total=0;
+  FILLER_RES.forEach(function(p){var m=String(text).match(p[1]);if(m){by[p[0]]=(by[p[0]]||0)+m.length;total+=m.length}});
+  sentences(text).forEach(function(s){if(/^so+\b/i.test(s)){by['so (opening)']=(by['so (opening)']||0)+1;total++}});
+  return {total:total,by:by};
+}
+function vagueList(t){return (String(t).match(VAGUE)||[]).map(function(x){return x.toLowerCase()})}
+function specifics(t){
+  t=String(t);
+  var n=(t.match(/\d+(?:[.,:]\d+)*/g)||[]).length+(t.match(NUMWORDS)||[]).length;
+  sentences(t).forEach(function(s){
+    var rest=s.split(/\s+/).slice(1).join(' ');
+    n+=(rest.match(/\b[A-Z][a-z]{2,}\b/g)||[]).length;
+  });
+  return n;
+}
+function storyish(t){return words(t).length>=10&&(String(t).match(/\b\w{3,}ed\b/gi)||[]).length>=2}
+function flagged(t){
+  var f=fillerStats(t),out=Object.keys(f.by);
+  vagueList(t).forEach(function(w){if(out.indexOf(w)<0)out.push(w)});
+  return out;
+}
+
+function checkPoint(p,r,e){
+  var pw=words(p).length,ps=sentences(p).length,rw=words(r).length;
+  var all=[p,r,e].join(' ');
+  var bad=flagged(all);
+  return [
+    {ok:ps<=1&&pw>=4&&pw<=22,label:'Point is one short sentence',tip:'Yours is '+pw+' words'+(ps>1?' across '+ps+' sentences':'')+'. Aim for 4 to 22 words in one sentence.'},
+    {ok:!HEDGE.test(p.trim())&&fillerStats(p).total===0,label:'Point starts with the answer',tip:'Cut the warm-up. Start with the answer itself, not "so basically" or "I think maybe".'},
+    {ok:rw>=5&&rw<=30,label:'Reason says why',tip:'Your reason is '+rw+' words. Give one reason in 5 to 30 words: why is your point true?'},
+    {ok:specifics(e)>=1||storyish(e),label:'Example has a detail',tip:'Add a number, a name, or a day. A real moment beats a general statement.'},
+    {ok:bad.length===0,label:'No filler or vague words',tip:'Found: '+bad.join(', ')+'. Swap each for the exact word.'}
+  ];
+}
+function checkUntangle(text,item){
+  var ss=sentences(text),lens=ss.map(function(s){return words(s).length});
+  var maxLen=Math.max.apply(null,[0].concat(lens));
+  var commasOK=ss.length>0&&ss.every(function(s){return (s.match(/,/g)||[]).length<=1});
+  var low=text.toLowerCase();
+  var hit=item.facts.filter(function(f){return new RegExp(f,'i').test(low)}).length;
+  var need=Math.ceil(item.facts.length*0.75);
+  var fl=fillerStats(text);
+  return [
+    {ok:ss.length>=2,label:'Split into separate sentences',tip:'You wrote '+ss.length+' sentence'+(ss.length===1?'':'s')+'. End each idea with a period.'},
+    {ok:ss.length>0&&maxLen<=16,label:'Every sentence is 16 words or fewer',tip:'Your longest runs '+maxLen+' words. Split it again.'},
+    {ok:commasOK,label:'No more than one comma per sentence',tip:'A second comma usually means a second idea. Give it its own sentence.'},
+    {ok:hit>=need,label:'Keeps the key facts',tip:'You kept '+hit+' of '+item.facts.length+' facts. Reread the original for what you dropped.'},
+    {ok:fl.total===0,label:'No filler words',tip:'Found: '+Object.keys(fl.by).join(', ')+'.'}
+  ];
+}
+function checkConcrete(text,item){
+  var wc=words(text).length,bad=flagged(text),fl=fillerStats(text);
+  var extra=item.extra?new RegExp(item.extra,'i').test(text):false;
+  return [
+    {ok:specifics(text)>=1||extra,label:'Has a number, name, or specific term',tip:item.ask},
+    {ok:vagueList(text).length===0,label:'No vague words left',tip:'Found: '+vagueList(text).join(', ')+'. Replace each with the exact thing.'},
+    {ok:wc>=6&&wc<=30,label:'Says something complete',tip:'You wrote '+wc+' words. Use 6 to 30 so the detail has room.'},
+    {ok:fl.total===0,label:'No filler words',tip:'Found: '+Object.keys(fl.by).join(', ')+'.'}
+  ];
+}
+function analyzeTalk(text){
+  var wc=words(text).length;
+  if(wc>=20&&!/[.!?]/.test(text))return {needsPunct:true,wc:wc};
+  var ss=sentences(text),lens=ss.map(function(s){return words(s).length});
+  var longest=Math.max.apply(null,[0].concat(lens));
+  var longestText=ss[lens.indexOf(longest)]||'';
+  var avg=ss.length?wc/ss.length:0;
+  var f=fillerStats(text),per100=wc?f.total/wc*100:0;
+  var spec=specifics(text);
+  var first=ss[0]||'',fw=words(first).length;
+  var list=Object.keys(f.by).map(function(k){return k+' x'+f.by[k]}).join(', ');
+  var checks=[
+    {ok:wc>=40,label:'Enough to judge',tip:'You said '+wc+' words. A minute of talking is usually 100 or more.'},
+    {ok:fw>=3&&fw<=22&&!HEDGE.test(first.trim()),label:'Led with the point',tip:HEDGE.test(first.trim())?'Your first sentence starts with a warm-up. Open with the answer.':'Your first sentence runs '+fw+' words. Open with the answer in 22 or fewer.'},
+    {ok:avg<=16&&longest<=25,label:'Short sentences',tip:'Average '+avg.toFixed(1)+' words, longest '+longest+'. Split anything over 25.'},
+    {ok:per100<=3,label:'Few filler words',tip:f.total+' found ('+list+'). Replace each with a pause.'},
+    {ok:spec>=2||storyish(text),label:'Concrete detail',tip:'Add numbers, names, or days. Two or more in a minute makes it sound real.'}
+  ];
+  return {needsPunct:false,wc:wc,ss:ss,avg:avg,longest:longest,longestText:longestText,per100:per100,fillers:f.total,by:f.by,spec:spec,checks:checks};
+}
+function dstr(d){var p=function(n){return String(n).padStart(2,'0')};return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())}
+function streakOf(days,today){
+  var a=today.split('-').map(Number),dt=new Date(a[0],a[1]-1,a[2]),n=0;
+  if(!days[dstr(dt)])dt.setDate(dt.getDate()-1);
+  while(days[dstr(dt)]){n++;dt.setDate(dt.getDate()-1)}
+  return n;
+}
+function xpAt(l){return 20*l*(l-1)}
+function levelOf(xp){var l=1;while(xp>=xpAt(l+1))l++;return l}
+
+const DECK={
+  point:[
+    {tag:"Interview",q:"How do you handle an upset caller?",m:{p:"I stay calm, listen first, and then fix the actual problem.",r:"People calm down once they feel heard, and the call gets shorter.",e:"Last month a caller was angry about a $120 charge, so I let her finish, found the duplicate billing, and had it refunded in 15 minutes."}},
+    {tag:"Interview",q:"Why do you want this job?",m:{p:"I want this job because accuracy matters in healthcare.",r:"Small mistakes cost patients money and time, and I'm careful by habit.",e:"Last quarter I caught 6 wrong billing codes before they went out."}},
+    {tag:"Everyday",q:"What does your current job involve?",m:{p:"I help patients get their appointments and insurance claims sorted out.",r:"Most of them are confused about coverage, so my job is making the next step clear.",e:"On a typical day I take about 30 calls, check eligibility, and fix claim errors."}},
+    {tag:"Work",q:"A patient asks why their appointment was moved. Answer them.",m:{p:"Your appointment moved from Tuesday to Thursday because the audiologist is out.",r:"We would rather reschedule than rush your visit.",e:"Thursday at 10:00 is open, and I can book it right now."}},
+    {tag:"Interview",q:"What is your biggest strength at work?",m:{p:"My biggest strength is staying clear when a situation gets messy.",r:"Customers need one next step, not the whole backstory.",e:"When a claim was denied twice, I wrote a 3-step plan for the patient, and it was approved on the third try."}},
+    {tag:"Everyday",q:"Why did you choose your field of study?",m:{p:"I chose networking because everything else depends on it.",r:"Every cloud service, app, and security tool needs a working network.",e:"In my first lab I built a 4-router network and watched traffic move end to end."}},
+    {tag:"Work",q:"Tell a coworker why a deadline needs to move.",m:{p:"We need to move the deadline from Friday to Tuesday.",r:"Two claims are missing records, and sending them incomplete would get them denied.",e:"I requested the records on Monday, and the clinic promised them by Tuesday morning."}},
+    {tag:"Work",q:"Explain why a claim might get denied, in plain language.",m:{p:"Most claims are denied because of a coding or paperwork error.",r:"Insurers reject anything that does not match their exact format.",e:"One wrong digit in a 5-digit billing code can trigger a denial."}}
+  ],
+  untangle:[
+    {tag:"Work",text:"So basically the thing is that your claim got denied because the insurance company said the code was wrong but we can appeal it and I can start that today if you want me to and it usually takes about two weeks.",facts:["denied","code","appeal","two weeks|2 weeks"],model:"Your claim was denied because the insurance company flagged a wrong billing code. We can appeal it. I can start the appeal today. It usually takes about two weeks."},
+    {tag:"Work",text:"I know your hearing aids were supposed to come Tuesday but the carrier had a delay and now it says Friday so I'm going to check with them again tomorrow morning and call you back either way.",facts:["tuesday","delay|carrier","friday","tomorrow","call you back|call back"],model:"Your hearing aids were supposed to arrive Tuesday. The carrier had a delay, and the new date is Friday. I will check with them again tomorrow morning. I'll call you back either way."},
+    {tag:"Interview",text:"Well I think I'm a good fit because I've worked in customer support for a while now and I'm pretty good with people and I learn fast and I also like helping people solve problems.",facts:["customer support","learn","solve|problem"],model:"I'm a good fit because I have real customer support experience. I learn fast. I like solving people's problems."},
+    {tag:"Everyday",text:"What I'm trying to say is that I want to finish school but I'm also working full time so I need a program that lets me go at my own pace and doesn't cost too much.",facts:["school","full time|full-time","own pace","cost|afford|cheap|price"],model:"I want to finish school. I also work full time. I need a program I can do at my own pace. It also has to be affordable."},
+    {tag:"Work",text:"The reason your appointment got moved is that the audiologist is out sick and so we had to push everyone back and I can get you in Thursday at ten or next Monday whichever you prefer.",facts:["audiologist","sick|out","thursday","monday"],model:"Your appointment moved because the audiologist is out sick. I can get you in Thursday at ten. Or I can book next Monday. Which do you prefer?"},
+    {tag:"Work",text:"I wanted to reach out because I noticed the file was missing a few records and I wasn't sure if you had them or not so I figured I'd ask and see if you could send them over when you get a chance.",facts:["missing","records","send"],model:"The file is missing a few records. Do you have them? Please send them over by Friday."},
+    {tag:"Everyday",text:"So yesterday I was trying to figure out my budget and I realized that I spend way more on food than I thought which is kind of annoying because I thought I was doing okay.",facts:["budget","food","spend"],model:"Yesterday I worked on my budget. I spend far more on food than I thought. That surprised me."},
+    {tag:"Interview",text:"My last job taught me a lot about communication and dealing with difficult situations and staying calm under pressure and I think those skills would help me here too.",facts:["communication","difficult","calm|pressure"],model:"My last job taught me communication. It taught me to handle difficult situations. It taught me to stay calm under pressure. Those skills would help me here."}
+  ],
+  concrete:[
+    {tag:"Work",text:"I helped a lot of customers every day.",ask:"Add a number and what you did for them.",model:"I helped about 30 customers a day with claims and scheduling."},
+    {tag:"Work",text:"We fixed the problem pretty quickly.",ask:"Say what was wrong and how long the fix took, as a number.",model:"We fixed the billing code in 10 minutes and resubmitted the claim."},
+    {tag:"Everyday",text:"The program is really good and helps a lot.",ask:"Name one thing it does, with a number.",model:"The program transfers 30 credits, which saves about two terms."},
+    {tag:"Interview",text:"I have good experience with technology.",ask:"Name a tool or system you use, and add a number.",extra:"excel|windows|zoom|crm|router|wi-?fi|software|ticket|portal|spreadsheet",model:"I use Excel and a ticketing system every day to track about 40 open cases."},
+    {tag:"Work",text:"Things have been busy at work lately.",ask:"Say what is busy and give a number.",model:"Call volume is up about 20 percent this month, so I'm handling roughly twice the claims."},
+    {tag:"Everyday",text:"I want to improve my communication.",ask:"Name the situation and add one number.",model:"I want to cut filler words on calls, so I record 60 seconds a day."},
+    {tag:"Work",text:"It takes a while to get approved.",ask:"Give a time range with numbers.",model:"Approval takes about two to four weeks."},
+    {tag:"Interview",text:"My manager gave me some feedback.",ask:"Say what the feedback was and one number you will aim for.",model:"My manager said my calls run long, so I'm opening with the point and aiming for under 6 minutes."}
+  ],
+  say:[
+    {tag:"Work",q:"A patient asks why their claim was denied. Explain what happens next."},
+    {tag:"Work",q:"Walk a caller through what to do when their hearing aid shipment is late."},
+    {tag:"Work",q:"Explain to a new patient what a telehealth hearing consultation involves."},
+    {tag:"Work",q:"A caller is upset about a billing error. Tell them what you will do."},
+    {tag:"Interview",q:"Tell me about yourself."},
+    {tag:"Interview",q:"Why do you want this job?"},
+    {tag:"Interview",q:"Describe a time you solved a problem for a customer."},
+    {tag:"Everyday",q:"Explain your plan for the next five years."},
+    {tag:"Everyday",q:"Describe something you learned this week."},
+    {tag:"Everyday",q:"Explain how to do one thing you do well, step by step."}
+  ]
+};
+// ==END LOGIC==
+// ==LESSONS==
+function checkPointOnly(p){
+  var pw=words(p).length,ps=sentences(p).length,bad=flagged(p);
+  return [
+    {ok:ps<=1&&pw>=4&&pw<=22,label:'One short sentence',tip:'Yours is '+pw+' words'+(ps>1?' across '+ps+' sentences':'')+'. Aim for 4 to 22 words in one sentence.'},
+    {ok:!HEDGE.test(p.trim())&&fillerStats(p).total===0,label:'Starts with the answer',tip:'Cut the warm-up. Open with the answer itself, not "so basically" or "I think maybe".'},
+    {ok:bad.length===0,label:'No filler or vague words',tip:'Found: '+bad.join(', ')+'. Swap each for the exact word.'}
+  ];
+}
+function checkPRE(p,r,e){
+  var pw=words(p).length,ps=sentences(p).length,rw=words(r).length,rs=sentences(r).length;
+  var bad=flagged([p,r,e||''].join(' '));
+  var cs=[
+    {ok:ps<=1&&pw>=4&&pw<=22,label:'Point is one short sentence',tip:'Yours is '+pw+' words'+(ps>1?' across '+ps+' sentences':'')+'. Aim for 4 to 22 words in one sentence.'},
+    {ok:!HEDGE.test(p.trim())&&fillerStats(p).total===0,label:'Point starts with the answer',tip:'Cut the warm-up. Open with the answer itself, not "so basically" or "I think maybe".'},
+    {ok:rw>=5&&rw<=30&&rs<=1,label:'Reason is one sentence that says why',tip:'Your reason is '+rw+' words'+(rs>1?' across '+rs+' sentences':'')+'. Give one reason in 5 to 30 words.'}
+  ];
+  if(e)cs.push({ok:specifics(e)>=1||storyish(e),label:'Example has a detail',tip:'Add a number, a name, or a day. A real moment beats a general statement.'});
+  cs.push({ok:bad.length===0,label:'No filler or vague words',tip:'Found: '+bad.join(', ')+'. Swap each for the exact word.'});
+  return cs;
+}
+function checkClean(text,item){
+  var wc=words(text).length,fl=fillerStats(text),vg=vagueList(text),low=text.toLowerCase();
+  var hit=item.facts.filter(function(f){return new RegExp(f,'i').test(low)}).length;
+  var found=Object.keys(fl.by).concat(vg);
+  return [
+    {ok:fl.total===0&&vg.length===0,label:'No filler words',tip:'Found: '+found.join(', ')+'.'},
+    {ok:wc>=3&&wc<=16&&sentences(text).length<=2,label:'Short and direct',tip:'You wrote '+wc+' words. Aim for 3 to 16 in one or two sentences.'},
+    {ok:hit===item.facts.length,label:'Keeps the meaning',tip:'The original talks about: '+item.facts.join(', ')+'. Keep that.'}
+  ];
+}
+
+function TE(title,lines,eg){return {t:'teach',title:title,lines:lines,eg:eg||null}}
+function MC(q,opts,why,o){var s={t:'mc',q:q,opts:opts,why:why};if(o)for(var k in o)s[k]=o[k];return s}
+function OR(q,items,why){return {t:'order',q:q,items:items,why:why}}
+function TAP(q,text,clean){return {t:'tap',q:q,text:text,clean:clean}}
+function TP(q,hint,sample){return {t:'tp',q:q,hint:hint,sample:sample}}
+function TPR(q,hint,sample){return {t:'tpr',q:q,hint:hint,sample:sample}}
+function TPRE(q,hint,sample){return {t:'tpre',q:q,hint:hint,sample:sample}}
+
+// In every MC step the FIRST option is the correct one. The app shuffles them when it shows the step.
+var UNITS=[
+{id:'u1',n:1,title:'The Point',sub:'Start with your answer',color:'#1F8A33',dark:'#14612A',icon:'target',lessons:[
+  {id:'u1l1',title:'What is a point?',sub:'Spot it fast',steps:[
+    TE('Your point is your answer',['When someone asks you a question, your point is the answer in one sentence.','Say it first. Everything else comes after.'],[['g','Question','Did you finish the report?'],['g','Point','Yes, I sent it to you at 2:00.']]),
+    MC('Which reply gives the point first?',['Yes, we are open Saturday from 9 to 1.','Well, let me think. The schedule has changed a few times this year.','So basically there are a lot of days we open and some we do not.','Hmm, I would have to look at a few things before I can say.'],'The first reply answers in its first words. The others warm up and never land.',{ctxL:'Question',ctx:'Is the clinic open on Saturday?'}),
+    MC('Which sentence is the point?',['The insurance company flagged a wrong billing code.','I looked at your file this morning.','I know this has been a long process.','Let me explain how claims work.'],'It answers the question that was asked: why the claim was denied.',{ctxL:'Question',ctx:'Why was my claim denied?'}),
+    MC('Which answer starts with the point?',['Yes, I have worked in customer support for over a year.','Okay so, I guess, in a way, I have kind of done things like that.','That is a great question, and it depends on how you define it.','Let me start by telling you a little about my background.'],'It says yes and gives the proof right away.',{ctxL:'Question',ctx:'Do you have customer service experience?'}),
+    MC('Which rewrite leads with the point?',['The problem is the billing code. I found it in your file.','I checked a few things in your file, and then I found the billing code.','Your file had several items I looked at, including the billing code.','I think, maybe, the billing code could possibly be the problem.'],'The first version names the problem right away. The others bury it or hedge.',{ctxL:'Weak version',ctx:'So I was looking at your file and checking some things, and I think the problem is the billing code.'})
+  ]},
+  {id:'u1l2',title:'Strong points',sub:'Short, clear, specific',steps:[
+    TE('A strong point is clear and short',['Short: about 5 to 15 words.','Clear: someone could repeat it back to you.','Specific: it says what, not just "good".'],[['b','Weak','It is a good program.'],['g','Strong','The program saves me two terms.']]),
+    MC('Which is the strongest point?',['I want to work where accuracy matters.','I think it would be a good opportunity.','I just need a job.','It seems like a nice place.'],'It says what you value. The others could be about any job.',{ctxL:'Question',ctx:'Why do you want this job?'}),
+    MC('Pick the clearest point.',['It was busy, but I finished all four claims on my list.','It was, you know, kind of a lot of things.','Things happened and stuff went on.','It is hard to explain.'],'It gives a clear picture with a real detail.',{ctxL:'Question',ctx:'How was your week?'}),
+    MC('Which version is short and direct?',['I can start on Monday.','I think that maybe I might be able to start possibly on Monday.','What I am trying to say is that Monday could be good.','Monday, I guess, if that works.'],'Same message, five words. Hedging words add length without adding meaning.',{ctxL:'Too long',ctx:'What I am trying to say is that I would like to be able to say that I can start on Monday.'}),
+    MC('Which reply gives the point first?',['They will arrive Friday.','Shipping has been slow lately and many carriers have delays.','I do not know much about shipping, but I can look.','Shipping is complicated these days.'],'Give the answer first. Add the reason after, if they need it.',{ctxL:'Situation',ctx:'A patient asks when their hearing aids will arrive. The tracking page says Friday.'})
+  ]},
+  {id:'u1l3',title:'Write your point',sub:'One sentence',steps:[
+    TE('Now you write',['Write one sentence. Start with the answer.','Skip "I think", "maybe", and "so basically".','Aim for 5 to 15 words.']),
+    TP('Do you like working with people?','Start with Yes or No, then say what you like.',{p:'Yes, I like helping people solve problems.'}),
+    TP('What is your biggest strength at work?','Name one strength. Skip the warm-up.',{p:'My biggest strength is staying calm when a call gets messy.'}),
+    TP('Why are you going back to school?','Say the goal, not the whole story.',{p:'I am going back to school to build a career in IT.'})
+  ]}
+]},
+{id:'u2',n:2,title:'The Reason',sub:'Say why it is true',color:'#1F73E0',dark:'#1556AD',icon:'chat',lessons:[
+  {id:'u2l1',title:'Why it is true',sub:'Find the reason',steps:[
+    TE('A reason answers "why?"',['A point says what. A reason says why it is true.','One reason is enough. Keep it to one sentence.'],[['g','Point','I want this job.'],['g','Reason','Accuracy matters in healthcare, and I am careful by habit.']]),
+    MC('Which sentence is the reason?',['Two claims are missing records, and sending them now would get them denied.','We need to move the deadline.','The deadline is on Friday.','Everyone is busy this week.'],'It explains why. The second option just repeats the point.',{ctxL:'Point',ctx:'We need to move the deadline.'}),
+    MC('Pick the best reason.',['Calm callers listen better, so problems get solved faster.','I stay calm on hard calls.','Because I do.','Calls are calls.'],'A good reason gives new information that supports the point.',{ctxL:'Point',ctx:'I stay calm on hard calls.'}),
+    MC('Which reason fits the point?',['The front desk needs the member ID to confirm your coverage.','Insurance cards are made of plastic.','Visits happen on weekdays.','I like checking things.'],'It connects directly to why the card matters at the visit.',{ctxL:'Point',ctx:'Please bring your insurance card to the visit.'}),
+    MC('Which reason is weak?',['It is good because it is good.','It transfers 30 credits, so it saves about two terms.','It costs less than the other option I compared.','It lets me study at my own pace while I work full time.'],'A weak reason repeats the point. The others add real information.',{ctxL:'Point',ctx:'The program is worth it.'})
+  ]},
+  {id:'u2l2',title:'Link with because',sub:'Join point and reason',steps:[
+    TE('Two small words link them',['because gives the reason: "I am late because the train stopped."','so gives the result: "The train stopped, so I am late."','Use one. Do not stack them.']),
+    MC('Pick the word that fits.',['because','but','or','unless'],'"Because" introduces the reason for the call.',{sent:'I called the clinic ___ the file was missing records.'}),
+    MC('Pick the word that fits.',['so','because','although','unless'],'"So" shows the result. The wrong code came first, then the denial.',{sent:'The code was wrong, ___ the claim was denied.'}),
+    MC('Pick the word that fits.',['because','so','however','then'],'"Because" gives the reason you like the work.',{sent:'I like this work ___ I get to solve problems for people.'}),
+    OR('Put the sentences in order: point first, then the reason.',['Please arrive 15 minutes early.','The front desk needs time to check your insurance.'],'Point first, then the reason.'),
+    MC('Which sentence joins a point and reason cleanly?',['I need Friday off because I have a school exam.','I need Friday off, because, so, I have an exam, and also.','Because Friday off exam I need.','I need Friday off and then because of the exam thing.'],'One link word, one idea on each side.')
+  ]},
+  {id:'u2l3',title:'Point + reason',sub:'Two sentences',steps:[
+    TE('Two sentences, in this order',['Point first. Reason second.','Each one is a single short sentence.'],[['g','Point','I want to speak more clearly at work.'],['g','Reason','Clear answers save time for patients and coworkers.']]),
+    TPR('Why should we hire you?','Point: what you bring. Reason: why that helps them.',{p:'I bring real customer support experience.',r:'I can solve problems on a call without passing every issue to someone else.'}),
+    TPR('A patient asks why their appointment was moved.','Point: what changed. Reason: why it changed.',{p:'Your appointment moved from Tuesday to Thursday.',r:'The audiologist is out sick, and we would rather reschedule than rush your visit.'}),
+    TPR('Why do you want to practice speaking?','Point: your goal. Reason: why it matters to you.',{p:'I want to speak more clearly at work.',r:'Clear answers save time for patients and coworkers.'})
+  ]}
+]},
+{id:'u3',n:3,title:'An Example',sub:'Optional, but powerful',color:'#7A57E8',dark:'#5A3DB5',icon:'star',lessons:[
+  {id:'u3l1',title:'Specific beats vague',sub:'Numbers, names, days',steps:[
+    TE('An example is a real moment',['It is optional. Add one when you have a real moment to share.','Use a number, a name, or a day. That makes it believable.'],[['b','Vague','I fix problems all the time.'],['g','Specific','Last Tuesday I fixed a duplicate $120 charge in 15 minutes.']]),
+    MC('Which example is more specific?',['Last Tuesday I fixed a duplicate $120 charge in 15 minutes.','I fix problems all the time.','Things like that happen a lot.','I am good at that kind of stuff.'],'It has a day, an amount, and a time. You can picture it.'),
+    MC('Which version is concrete?',['I helped about 30 customers every day.','I helped many customers every day.','I helped lots of customers every day.','I helped customers pretty much every day.'],'A number lets the listener picture the size of the job.',{ctxL:'Vague',ctx:'I helped customers every day.'}),
+    TAP('Tap the vague words.','We handle *a* *lot* of *stuff* and the results are *really* *good*.','We handle 40 claims a week, and 38 are paid on the first try.'),
+    MC('Which example would you trust more?',['I have not missed a shift in 14 months.','I am basically always here.','People say I am dependable.','I try my best.'],'A number can be checked. The others are opinions.',{ctxL:'Point',ctx:'I am reliable.'})
+  ]},
+  {id:'u3l2',title:'Add an example',sub:'Optional bonus',steps:[
+    TE('Point, reason, and an optional example',['A full answer has three short parts. The example is the extra one.','Skipping it is fine. Add it when you have a real moment, and you earn bonus XP.']),
+    OR('Put the answer in order.',['I handle upset callers by listening first.','People calm down once they feel heard.','Last month a caller was angry about a $120 charge, and I fixed it in 15 minutes.'],'Point, then reason, then example.'),
+    TPRE('Tell me about a time you solved a problem.','Point: what you did. Reason: why it worked. Example: optional.',{p:'I solve problems by finding the root cause first.',r:'Fixing the cause keeps the problem from coming back.',e:'Last month I traced a repeat billing error to one wrong code and fixed it for 12 patients.'}),
+    TPRE('What is something you are good at?','Point: the skill. Reason: why it helps. Example: optional.',{p:'I am skilled at explaining insurance steps clearly.',r:'Clear steps help people feel confident.',e:'Last week I walked a patient through a claim in 3 steps.'})
+  ]}
+]},
+{id:'u4',n:4,title:'Clean Sentences',sub:'Short and clear',color:'#C25F00',dark:'#8F4500',icon:'split',lessons:[
+  {id:'u4l1',title:'One idea each',sub:'Split long sentences',steps:[
+    TE('Long sentences tangle',['Give each idea its own sentence.','If a sentence has more than one comma, split it.'],[['b','Tangled','The carrier had a delay and now it says Friday so I will check again tomorrow and call you back.'],['g','Clear','The carrier had a delay. The new date is Friday. I will check again tomorrow and call you back.']]),
+    MC('Which rewrite is clearest?',['The carrier had a delay. The new date is Friday. I will check again tomorrow and call you back.','The carrier had a delay, the new date is Friday, I will check again tomorrow, and I will call you back.','Delay, Friday, tomorrow check, call back carrier.','The carrier had a delay and the new date is Friday so I will check again tomorrow and call you back.'],'Three short sentences, one idea each. The comma chain still tangles.',{ctxL:'Original',ctx:'The carrier had a delay and now it says Friday so I will check again tomorrow and call you back.'}),
+    MC('Which is easiest to say out loud?',['I want to finish school. I work full time. I need a program that is flexible and affordable.','I want to finish school but I work full time so I need a program that is flexible and affordable.','Finish school, full time work, flexible affordable program need.','I want to finish school and I work full time and I need a flexible affordable program.'],'Short sentences give you a place to breathe.'),
+    MC('Which sentence should you split?',['Your claim was denied because the insurance company flagged a wrong code and we can appeal it and I can start today and it takes about two weeks.','Your claim was denied.','I can start the appeal today.','It takes about two weeks.'],'It packs four ideas into one breath. The others are already clean.'),
+    {t:'tun',item:DECK.untangle[2]}
+  ]},
+  {id:'u4l2',title:'Cut the filler',sub:'Pause instead',steps:[
+    TE('Filler adds nothing',['Common fillers: um, you know, basically, kind of, I guess, I feel like.','Replace them with a pause. A short silence sounds confident.']),
+    TAP('Tap the filler words.','*So* *basically* I *kind* *of* want to *um* start on Monday.','I want to start on Monday.'),
+    MC('Which version has no filler?',['I can start Monday.','I mean, I can basically start Monday.','I guess I could, like, start Monday.','So, um, Monday works.'],'The first says the point and stops.'),
+    TAP('Tap the filler words.','I *honestly* *feel* *like* the plan *actually* works, *you* *know*.','The plan works.'),
+    MC('What should you do instead of saying "um"?',['Pause for a beat.','Talk faster.','Say "like" instead.','Repeat your last word.'],'A silent beat gives you time to find the next sentence. Listeners hear it as confidence.'),
+    {t:'tcl',text:'So, um, basically I think I can, like, start Monday.',facts:['monday'],model:'I can start Monday.'}
+  ]}
+]},
+{id:'u5',n:5,title:'Put It Together',sub:'Full answers, out loud',color:'#C2255C',dark:'#8F1B43',icon:'mic',lessons:[
+  {id:'u5l1',title:'Build a full answer',sub:'Point, reason, example',steps:[
+    TE('Now combine all three',['Point first. Then the reason. Add an example if you have one.','Keep each part to one short sentence.'],[['g','Point','I want to work where accuracy matters.'],['g','Reason','Small mistakes cost patients time and money.'],['g','Example','Last quarter I caught 6 wrong billing codes before they went out.']]),
+    OR('Put the answer in order.',['Please call me back before noon.','I need your insurance ID to finish the claim.','You can find it on the front of your card.'],'The point comes first. The reason follows. The detail about where to find it refers back to the ID, so it comes last.'),
+    MC('Which is the complete, clear answer?',['I chose IT because every other field depends on it. In my first lab I built a 4-router network.','So I guess I like computers and stuff, and I feel like IT is basically a good field.','IT is a field that many people go into for many reasons and it is important.','I chose IT. It is good. Everyone knows that.'],'Point first, a real reason, and one concrete detail. No filler.',{ctxL:'Question',ctx:'Why did you choose IT?'}),
+    TPRE('Tell me about yourself.','Point: who you are at work. Reason: what you do well. Example: optional.',{p:'I work in customer support in healthcare.',r:'I help people understand their coverage and fix claim errors.',e:'On a typical day I take about 30 calls.'}),
+    TPRE('Why do you want this job?','Point: your main reason. Reason: why it matters. Example: optional.',{p:'I want a job where accuracy matters.',r:'I am careful by habit, and small mistakes cost patients time.',e:'Last quarter I caught 6 wrong billing codes before they went out.'})
+  ]},
+  {id:'u5l2',title:'Say it out loud',sub:'60-second speaking',steps:[
+    TE('Now say it',['You will talk for 60 seconds, then add what you said below.','Use your phone keyboard mic to dictate, or type up a voice memo.','Add a period wherever you paused.']),
+    MC('Which opening line works best out loud?',['I work in customer support, and I am moving into IT.','Um, so, where do I even start.','Well, there is a lot to say about me.','I guess I am just a regular person.'],'It leads with the point and uses one clean sentence.',{ctxL:'Question',ctx:'Tell me about yourself.'}),
+    {t:'speak',q:'Tell me about a problem you solved at work or school.'},
+    {t:'speak',q:'Why do you want this job?'}
+  ]}
+]}
+];
+// ==END LESSONS==
+
+var ICONS={
+  check:'<path d="m5 12.5 4.5 4.5L19 7" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>',
+  x:'<path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>',
+  lock:'<rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>',
+  arrow:'<path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>'
+};
+function ico(n,s){return '<svg viewBox="0 0 24 24" width="'+s+'" height="'+s+'" fill="currentColor" aria-hidden="true">'+ICONS[n]+'</svg>'}
+
+var DRILLS=[
+  {kind:'point',name:'Full Answer',tag:'Writing + speaking',desc:'Point, reason, and an optional example.',xp:35,rounds:3,title:'Answer in your own words'},
+  {kind:'untangle',name:'Untangle',tag:'Writing',desc:'Turn one run-on into short, clear sentences.',xp:30,rounds:3,title:'Fix the tangled sentence'},
+  {kind:'concrete',name:'Make It Concrete',tag:'Writing + speaking',desc:'Swap a vague sentence for a number, a name, or a step.',xp:30,rounds:3,title:'Make it concrete'},
+  {kind:'say',name:'Say It',tag:'Speaking',desc:'Talk for 60 seconds, then see your fillers and long sentences.',xp:50,rounds:1,title:'Say it out loud'}
+];
+function drillOf(k){return DRILLS.filter(function(d){return d.kind===k})[0]}
+var TITLES=['Warming Up','Finding the Point','Short Sentences','Clean Delivery','Steady Voice','Sharp','Precise','Persuasive'];
+function titleOf(l){return TITLES[Math.min(l,TITLES.length)-1]}
+var PRAISE=['Nice work.','Correct.','That is it.','Exactly.','Good eye.'];
+var GOAL=30;
+
+var ALL=[];
+UNITS.forEach(function(u){u.lessons.forEach(function(l){ALL.push({u:u,l:l,i:ALL.length})})});
+function lessonById(id){return ALL.filter(function(x){return x.l.id===id})[0]}
+function nextIdx(){for(var i=0;i<ALL.length;i++){if(!S.lessons[ALL[i].l.id])return i}return -1}
+function lessonState(i){if(S.lessons[ALL[i].l.id])return 'done';return i===nextIdx()?'cur':'lock'}
+function unitDone(n){return UNITS[n-1].lessons.every(function(l){return !!S.lessons[l.id]})}
+
+var BADGES=[
+  {id:'first',name:'First Rep',desc:'Finish any lesson or practice round.',test:function(S){return S.done>=1}},
+  {id:'u1',name:'Point Maker',desc:'Finish Unit 1.',test:function(){return unitDone(1)}},
+  {id:'u2',name:'Reason Giver',desc:'Finish Unit 2.',test:function(){return unitDone(2)}},
+  {id:'path',name:'Path Complete',desc:'Finish every lesson.',test:function(){return ALL.every(function(x){return !!S.lessons[x.l.id]})}},
+  {id:'streak3',name:'Three Days Running',desc:'Practice 3 days in a row.',test:function(S,c){return c.streak>=3}},
+  {id:'streak7',name:'Full Week',desc:'Practice 7 days in a row.',test:function(S,c){return c.streak>=7}},
+  {id:'perfect',name:'Clean Sweep',desc:'Finish a lesson or round with no mistakes.',test:function(S){return S.perfect>=1}},
+  {id:'all4',name:'Well Rounded',desc:'Try all four free practice drills.',test:function(S){return Object.keys(S.kinds).length>=4}},
+  {id:'tight',name:'Short and Sharp',desc:'Speak 30+ words averaging 14 or fewer per sentence.',test:function(S,c){return !!c.talk&&c.talk.words>=30&&c.talk.avg<=14}},
+  {id:'clean',name:'Clean Talk',desc:'Speak 40+ words with zero filler words.',test:function(S,c){return !!c.talk&&c.talk.words>=40&&c.talk.fillers===0}}
+];
+
+var KEY='pointfirst.v1';
+function blank(){return {xp:0,done:0,days:{},dxp:{},kinds:{},badges:[],talk:[],perfect:0,lessons:{}}}
+function load(){try{var r=localStorage.getItem(KEY);if(r){return Object.assign(blank(),JSON.parse(r))}}catch(e){}return blank()}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+var S=load();
+var view={name:'home'},cur=null,LS=null,timer=null,armed=false,armedQuit=false,tt=null,MSGS=[];
+
+function $(s){return document.querySelector(s)}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function todayStr(){return dstr(new Date())}
+function toast(m){var el=$('#toast');el.textContent=m;el.hidden=false;clearTimeout(tt);tt=setTimeout(function(){el.hidden=true},4500)}
+function flushToast(){if(MSGS.length){toast(MSGS.join('  ·  '));MSGS=[]}}
+function v(id){return document.getElementById(id).value.trim()}
+function rnd(a){return a[Math.floor(Math.random()*a.length)]}
+function shuffle(n){var a=[],i,j,t;for(i=0;i<n;i++)a.push(i);for(i=n-1;i>0;i--){j=Math.floor(Math.random()*(i+1));t=a[i];a[i]=a[j];a[j]=t}return a}
+
+function markDay(){var t=todayStr();if(!S.days[t])S.days[t]=1}
+function addXP(n){
+  if(!n)return;
+  var before=levelOf(S.xp),t=todayStr();
+  S.xp+=n;S.dxp[t]=(S.dxp[t]||0)+n;markDay();
+  var after=levelOf(S.xp);
+  if(after>before)MSGS.push('Level '+after+': '+titleOf(after));
+}
+function checkBadges(c){
+  BADGES.forEach(function(b){if(S.badges.indexOf(b.id)<0&&b.test(S,c)){S.badges.push(b.id);MSGS.push('Badge: '+b.name)}});
+}
+function ctxNow(talk){return {streak:streakOf(S.days,todayStr()),talk:talk?{words:talk.wc,avg:talk.avg,fillers:talk.fillers}:null}}
+
+// ---------- shared pieces ----------
+function field(id,label,hint,rows){
+  return '<div class="field"><label for="'+id+'">'+label+'</label><span class="hint">'+hint+'</span><textarea id="'+id+'" rows="'+(rows||2)+'" autocomplete="off"></textarea></div>';
+}
+function warnHTML(m){return '<p class="warn" role="alert">'+m+'</p>'}
+function checksHTML(cs){
+  return '<ul class="checks">'+cs.map(function(c){
+    return '<li><span class="cm '+(c.ok?'p':'f')+'">'+ico(c.ok?'check':'x',14)+'<span class="sr">'+(c.ok?'Pass':'Fix')+'</span></span><span><b>'+c.label+'</b>'+(c.ok?'':'<span class="tip">'+esc(c.tip)+'</span>')+'</span></li>';
+  }).join('')+'</ul>';
+}
+function highlight(a){
+  return a.ss.map(function(s){
+    var h=esc(s).replace(HL_RE,function(m){return '<mark class="fill">'+m+'</mark>'}).replace(/^(so+)\b/i,'<mark class="fill">$1</mark>');
+    return words(s).length>25?'<span class="long">'+h+'</span>':h;
+  }).join(' ');
+}
+function talkExtra(a){
+  var out='<div class="stats"><div class="stat"><b>'+a.wc+'</b><span>words</span></div><div class="stat"><b>'+a.avg.toFixed(1)+'</b><span>words per sentence</span></div><div class="stat"><b>'+a.per100.toFixed(1)+'</b><span>fillers per 100 words</span></div></div>';
+  out+='<div><p class="eyebrow" style="margin-bottom:8px">Your transcript</p><p class="tx">'+highlight(a)+'</p><p class="tip" style="margin-top:8px">Yellow marks are filler words. A wavy underline marks a sentence over 25 words.</p></div>';
+  if(a.longest>20)out+='<div class="callout"><p><b>Longest sentence, '+a.longest+' words:</b> '+esc(a.longestText)+'</p><p class="tip">Find where one idea ends and the next starts. Put a period there and say it as two sentences.</p></div>';
+  return out;
+}
+function speakHTML(q){
+  return '<div class="prompt"><p style="font-size:1.25rem;font-weight:800">'+esc(q)+'</p></div>'+
+    '<ol class="steps"><li>Finish this in your head: "The main thing I want them to know is..."</li><li>Start the timer and talk out loud for 60 seconds. Tap the mic on your phone keyboard to dictate into the box below, or record a voice memo and type it up after.</li><li>Add periods where you paused, then check.</li></ol>'+
+    '<div class="timer"><span class="clock" id="clock">1:00</span><button class="btn ghost" id="timerBtn" data-action="timer">Start 60 seconds</button></div><p class="hint" id="timerNote"></p>'+
+    field('say-text','What you said','Your words, with periods where you paused.',8);
+}
+function strip(cells){return '<div class="strip">'+cells.map(function(c){return '<div class="cell"><b>'+c[1]+'</b><span>'+c[0]+'</span></div>'}).join('')+'</div>'}
+function stopTimer(){if(timer){clearInterval(timer);timer=null}}
+function toggleTimer(){
+  var clock=$('#clock'),btn=$('#timerBtn'),note=$('#timerNote');
+  if(timer){stopTimer();btn.textContent='Start 60 seconds';clock.textContent='1:00';note.textContent='';return}
+  var left=60;clock.textContent='1:00';btn.textContent='Stop';note.textContent='Talk now.';
+  timer=setInterval(function(){
+    left--;clock.textContent=Math.floor(left/60)+':'+String(left%60).padStart(2,'0');
+    if(left<=0){stopTimer();btn.textContent='Start again';note.textContent='Time. Get what you said into the box below.'}
+  },1000);
+}
+function fbHTML(tone,head,xp,inner,btns){
+  return '<div class="fb '+tone+'" role="status"><div class="fbh"><span class="fbi">'+ico(tone==='bad'?'x':'check',16)+'</span><h3>'+esc(head)+'</h3>'+(xp?'<span class="xpchip">+'+xp+' XP</span>':'')+'</div>'+inner+(btns||'')+'</div>';
+}
+
+// ---------- home ----------
+function ctaHTML(){
+  var i=nextIdx();
+  if(i<0)return '<section class="next"><div class="l"><span class="eyebrow">Path complete</span><b>Keep going with free practice below.</b></div></section>';
+  var f=ALL[i];
+  return '<section class="next"><div class="l"><span class="eyebrow">'+(S.done===0&&i===0?'Start here':'Next up')+'</span><b>Unit '+f.u.n+': '+esc(f.l.title)+'</b></div><button class="btn" data-action="lesson" data-id="'+f.l.id+'">Start</button></section>';
+}
+function pathHTML(){
+  return UNITS.map(function(u){
+    var doneN=u.lessons.filter(function(l){return S.lessons[l.id]}).length,all=doneN===u.lessons.length;
+    var rows=u.lessons.map(function(l){
+      var st=lessonState(lessonById(l.id).i);
+      var tag=st==='cur'?'<span class="lst go">Start</span>':(st==='done'?'<span class="lst">Done</span>':'<span class="lst">'+ico('lock',14)+'<span class="sr">Locked</span></span>');
+      return '<li><button class="lrow '+st+'" data-action="lesson" data-id="'+l.id+'" aria-label="'+esc(l.title)+(st==='lock'?', locked':'')+(st==='done'?', completed':'')+'"><span class="dotn">'+(st==='done'?ico('check',11):'')+'</span><span class="ltxt"><b>'+esc(l.title)+'</b><span>'+esc(l.sub)+'</span></span>'+tag+'</button></li>';
+    }).join('');
+    return '<div class="unit"><div class="uhead"><span class="unum'+(all?' done':'')+'">'+u.n+'</span><span class="ut"><b>'+esc(u.title)+'</b><span>'+esc(u.sub)+'</span></span><span class="mono up">'+doneN+'/'+u.lessons.length+'</span></div><ol class="rail">'+rows+'</ol></div>';
+  }).join('');
+}
+function trendHTML(){
+  var t=S.talk.slice(-8);
+  if(t.length<2)return '<p class="muted">Finish two speaking runs to see your filler words per 100 words over time.</p>';
+  var max=Math.max.apply(null,[6].concat(t.map(function(x){return x.per100})));
+  var cols=t.map(function(x){
+    var h=Math.max(6,Math.round(x.per100/max*80));
+    return '<div class="col"><div class="b'+(x.per100<=3?' ok':'')+'" style="height:'+h+'px"></div><span class="v">'+x.per100.toFixed(1)+'</span></div>';
+  }).join('');
+  return '<div class="trend" role="img" aria-label="Filler words per 100 words, latest '+t.length+' runs">'+cols+'</div><p class="hint">Filler words per 100 words, oldest to newest. Green means 3 or fewer.</p>';
+}
+function homeHTML(){
+  var lv=levelOf(S.xp),lo=xpAt(lv),hi=xpAt(lv+1);
+  var pct=Math.max(0,Math.min(100,Math.round((S.xp-lo)/(hi-lo)*100)));
+  var t=todayStr(),gx=S.dxp[t]||0,gp=Math.min(100,Math.round(gx/GOAL*100)),st=streakOf(S.days,t);
+  var rows=DRILLS.map(function(d){
+    return '<button class="prow" data-action="open" data-kind="'+d.kind+'"><span class="ptxt"><span class="eyebrow">'+d.tag+'</span><b>'+d.name+'</b><span class="d">'+d.desc+'</span></span><span class="pxp mono">'+d.xp+' XP</span></button>';
+  }).join('');
+  var badges=BADGES.map(function(b){
+    var on=S.badges.indexOf(b.id)>=0;
+    return '<div class="bdg'+(on?' on':'')+'"><span class="mono st">'+(on?'Earned':'Locked')+'</span><b>'+b.name+'</b><span class="d">'+b.desc+'</span></div>';
+  }).join('');
+  return '<header class="top"><span class="logo"><span class="hl">Point</span> First</span><div class="tags"><span class="tag">Streak <b>'+st+'</b></span><span class="tag">XP <b>'+S.xp+'</b></span></div></header>'+
+  '<section class="panel" aria-label="Your progress"><div class="meter"><div class="mrow"><span><span class="eyebrow">Level '+lv+'</span><span class="t">'+titleOf(lv)+'</span></span><span class="n">'+(S.xp-lo)+' / '+(hi-lo)+' XP</span></div><div class="bar"><i style="width:'+pct+'%"></i></div></div>'+
+  '<div class="meter"><div class="mrow"><span><span class="t">Daily goal</span><span class="hint">'+(gx>=GOAL?'Goal reached.':'Earn '+GOAL+' XP today')+'</span></span><span class="n">'+Math.min(gx,GOAL)+' / '+GOAL+' XP</span></div><div class="bar"><i style="width:'+gp+'%"></i></div></div></section>'+
+  ctaHTML()+
+  '<section class="sec"><h2>Learn</h2><div class="path">'+pathHTML()+'</div></section>'+
+  '<section class="sec"><h2>Free practice</h2><p class="hint">Type your own answers. Best after you have done a few lessons.</p><div class="rows">'+rows+'</div></section>'+
+  '<section class="sec"><h2>Speaking trend</h2>'+trendHTML()+'</section>'+
+  '<section class="sec"><h2>Badges</h2><div class="badges">'+badges+'</div></section>'+
+  '<footer class="foot"><p>Scoring is rule-based. It counts sentence length, filler words, vague words, and specifics. It cannot tell you whether your idea is good, so read your answers aloud too.</p><p>Progress saves in this browser on this device. Clearing site data erases it.</p><div class="btns"><button class="btn ghost" data-action="reset" id="resetBtn">'+(armed?'Tap again to erase everything':'Reset progress')+'</button></div></footer>';
+}
+
+// ---------- lessons ----------
+function parseTap(str){return str.split(/\s+/).map(function(w){var m=w.match(/^\*(.+?)\*(.*)$/);return m?{w:m[1]+m[2],bad:true}:{w:w,bad:false}})}
+function startLesson(id){
+  var f=lessonById(id);
+  LS={id:id,f:f,queue:f.l.steps.map(function(s){return {s:s,retry:false}}),pos:0,done:0,base:f.l.steps.length,xp:0,first:0,scored:0,miss:0,cg:0,ct:0,sx:null};
+  loadStep();
+}
+function loadStep(){
+  var q=LS.queue[LS.pos],s=q.s,x={checked:false,final:false,awarded:false};
+  if(s.t==='mc'){x.perm=shuffle(s.opts.length);x.sel=-1}
+  else if(s.t==='order'){x.perm=shuffle(s.items.length);if(x.perm.every(function(n,i){return n===i}))x.perm.reverse();x.placed=[]}
+  else if(s.t==='tap'){x.toks=parseTap(s.text);x.sel={}}
+  LS.sx=x;
+}
+function gain(n){addXP(n);LS.xp+=n}
+function hintHTML(s){return s.hint?'<details class="hintbox"><summary>Need a hint?</summary><p>'+esc(s.hint)+'</p></details>':''}
+function bodyHTML(){
+  var s=LS.queue[LS.pos].s,x=LS.sx,h='';
+  if(s.t==='teach'){
+    h='<div class="teach"><span class="eyebrow">New idea</span><h2 class="ltitle">'+esc(s.title)+'</h2><div class="tcard">'+s.lines.map(function(p){return '<p>'+esc(p)+'</p>'}).join('')+'</div>'+
+      (s.eg?s.eg.map(function(e){return '<div class="eg'+(e[0]==='b'?' bad':'')+'"><b>'+esc(e[1])+'</b>'+esc(e[2])+'</div>'}).join(''):'')+'</div>';
+  }else if(s.t==='mc'){
+    h='<h2 class="ltitle">'+esc(s.q)+'</h2>';
+    if(s.ctx)h+='<div class="ctx"><b>'+esc(s.ctxL||'Situation')+'</b>'+esc(s.ctx)+'</div>';
+    if(s.sent){
+      var chosen=x.sel>=0?esc(s.opts[x.perm[x.sel]]):'&nbsp;';
+      h+='<p class="sent">'+esc(s.sent).replace('___',function(){return '<span class="blank">'+chosen+'</span>'})+'</p>';
+    }
+    h+='<div class="opts">'+x.perm.map(function(oi,pos){
+      var cls='opt';
+      if(x.checked){if(oi===0)cls+=' ok';else if(pos===x.sel)cls+=' no'}
+      else if(pos===x.sel)cls+=' sel';
+      return '<button class="'+cls+'" data-action="pick" data-i="'+pos+'" aria-pressed="'+(pos===x.sel)+'"'+(x.checked?' disabled':'')+'><span class="k">'+String.fromCharCode(65+pos)+'</span><span>'+esc(s.opts[oi])+'</span></button>';
+    }).join('')+'</div>';
+  }else if(s.t==='order'){
+    h='<h2 class="ltitle">'+esc(s.q)+'</h2><p class="hint">Tap the lines in the right order. Tap a placed line to take it back.</p><ol class="slots">';
+    for(var i=0;i<s.items.length;i++){
+      var it=x.placed[i];
+      var inner=it===undefined?'':'<button class="opt'+(x.checked?(it===i?' ok':' no'):'')+'" data-action="unplace" data-i="'+i+'"'+(x.checked?' disabled':'')+'><span>'+esc(s.items[it])+'</span></button>';
+      h+='<li class="slot"><span class="sn">'+(i+1)+'</span>'+inner+'</li>';
+    }
+    h+='</ol>';
+    if(!x.checked)h+='<div class="pool">'+x.perm.filter(function(ix){return x.placed.indexOf(ix)<0}).map(function(ix){return '<button class="opt" data-action="place" data-i="'+ix+'"><span>'+esc(s.items[ix])+'</span></button>'}).join('')+'</div>';
+  }else if(s.t==='tap'){
+    h='<h2 class="ltitle">'+esc(s.q)+'</h2><p class="hint">Tap every one, then check.</p><div class="toks">'+x.toks.map(function(t,i){
+      var cls='tok',sel=!!x.sel[i];
+      if(x.checked){if(t.bad&&sel)cls+=' ok';else if(t.bad)cls+=' miss';else if(sel)cls+=' no'}
+      else if(sel)cls+=' sel';
+      return '<button class="'+cls+'" data-action="tok" data-i="'+i+'" aria-pressed="'+sel+'"'+(x.checked?' disabled':'')+'>'+esc(t.w)+'</button>';
+    }).join('')+'</div>';
+  }else if(s.t==='tp'||s.t==='tpr'||s.t==='tpre'){
+    h='<span class="eyebrow">Write it</span><h2 class="ltitle">'+esc(s.q)+'</h2>'+hintHTML(s)+field('t-p','Your point','One sentence. Start with the answer.',2);
+    if(s.t!=='tp')h+=field('t-r','Your reason','One sentence. Say why.',2);
+    if(s.t==='tpre')h+=field('t-e','Example (optional)','Skip it, or add a number, a name, or a day.',3);
+    h+='<div id="warn"></div>';
+  }else if(s.t==='tun'){
+    h='<span class="eyebrow">Write it</span><h2 class="ltitle">Fix the tangled sentence</h2><p>Rewrite this as short sentences. Keep every fact. Cut the filler.</p><blockquote class="tangle">'+esc(s.item.text)+'</blockquote>'+field('un-text','Your rewrite','Each sentence 16 words or fewer, with at most one comma.',5)+'<div id="warn"></div>';
+  }else if(s.t==='tcl'){
+    h='<span class="eyebrow">Write it</span><h2 class="ltitle">Say it clean</h2><p>Rewrite this with no filler. Keep the meaning.</p><blockquote class="tangle">'+esc(s.text)+'</blockquote>'+field('cl-text','Your rewrite','One short sentence.',2)+'<div id="warn"></div>';
+  }else if(s.t==='speak'){
+    h='<span class="eyebrow">Speak it</span><h2 class="ltitle">Say it out loud</h2>'+speakHTML(s.q)+'<div id="warn"></div>';
+  }
+  return h;
+}
+function footHTML(){
+  var s=LS.queue[LS.pos].s,x=LS.sx;
+  if(s.t==='teach')return '<button class="btn" data-action="gotit">Got it</button>';
+  var ready=true;
+  if(s.t==='mc')ready=x.sel>=0;
+  else if(s.t==='order')ready=x.placed.length===s.items.length;
+  else if(s.t==='tap')ready=Object.keys(x.sel).some(function(k){return x.sel[k]});
+  return '<button class="btn" data-action="lcheck"'+(ready?'':' disabled')+'>Check</button>';
+}
+function paintStep(){$('#stepbody').innerHTML=bodyHTML();$('#lfoot').innerHTML=footHTML()}
+function lessonHTML(){
+  var pct=Math.min(100,LS.done/LS.base*100);
+  return '<div class="lhead"><div class="ltop"><button class="quit" data-action="quit" aria-label="Quit lesson">'+ico('x',16)+'<span>Exit</span></button><div class="prog" role="progressbar" aria-label="Lesson progress" aria-valuemin="0" aria-valuemax="'+LS.base+'" aria-valuenow="'+LS.done+'"><i style="width:'+pct+'%"></i></div></div><p class="eyebrow">Unit '+LS.f.u.n+' · '+esc(LS.f.l.title)+'</p></div>'+
+    '<div id="stepbody" class="stepbody"></div><div id="fb"></div><div id="lfoot" class="lfoot"></div>';
+}
+function updateProg(){
+  var p=$('.prog'),i=$('.prog i');
+  if(i)i.style.width=Math.min(100,LS.done/LS.base*100)+'%';
+  if(p)p.setAttribute('aria-valuenow',LS.done);
+}
+function showSheet(tone,head,xp,inner,again,label){
+  var fb=$('#fb');
+  fb.innerHTML=fbHTML(tone,head,xp,inner,'');
+  $('#lfoot').innerHTML='<div class="frow">'+(again?'<button class="btn ghost" data-action="lretry">Try again</button>':'')+'<button class="btn" data-action="lnext">'+label+'</button></div>';
+  fb.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function hideSheet(){
+  var fb=$('#fb');if(fb)fb.innerHTML='';
+  var lf=$('#lfoot');if(lf&&LS)lf.innerHTML=footHTML();
+}
+function isLast(){return LS.pos>=LS.queue.length-1}
+
+function resolveChoice(ok,correctHTML,why){
+  var q=LS.queue[LS.pos],s=q.s,x=LS.sx,xp=0;
+  x.checked=true;
+  if(!q.retry){
+    LS.scored++;
+    if(ok){LS.first++;xp=5;gain(5)}
+    else{LS.miss++;LS.queue.push({s:s,retry:true})}
+  }
+  x.final=ok||q.retry;
+  if(x.final){LS.done++;updateProg()}
+  save();flushToast();
+  $('#stepbody').innerHTML=bodyHTML();
+  var inner=(ok?'':'<p><b>Correct answer:</b></p>'+correctHTML)+(why?'<p>'+esc(why)+'</p>':'');
+  showSheet(ok?'good':'bad',ok?rnd(PRAISE):(q.retry?'Not quite. Moving on.':'Not quite'),xp,inner,false,isLast()&&x.final?'Finish':'Continue');
+}
+function checkChoice(){
+  var s=LS.queue[LS.pos].s,x=LS.sx,ok,correct='',why=s.why;
+  if(s.t==='mc'){
+    ok=x.perm[x.sel]===0;correct='<p>'+esc(s.opts[0])+'</p>';
+  }else if(s.t==='order'){
+    ok=x.placed.every(function(n,i){return n===i});
+    correct='<ol>'+s.items.map(function(t){return '<li>'+esc(t)+'</li>'}).join('')+'</ol>';
+  }else{
+    ok=x.toks.every(function(t,i){return !!x.sel[i]===t.bad});
+    var bad=x.toks.filter(function(t){return t.bad}).map(function(t){return t.w.replace(/[.,!?]+$/,'')});
+    correct='<p>'+esc(bad.join(', '))+'</p>';
+    why='Try it like this: '+s.clean;
+    if(ok)why='Cleaner version: '+s.clean;
+  }
+  resolveChoice(ok,correct,why);
+}
+function checkTyped(){
+  var q=LS.queue[LS.pos],s=q.s,x=LS.sx,checks,model='',extra='',talk=null,per=4,bonus=6;
+  var wr=$('#warn');wr.innerHTML='';
+  function bail(m){wr.innerHTML=warnHTML(m)}
+  if(s.t==='tp'){
+    var p=v('t-p');if(!p){bail('Write your point first, then check.');return}
+    checks=checkPointOnly(p);model='<p><b>Sample.</b> '+esc(s.sample.p)+'</p>';
+  }else if(s.t==='tpr'||s.t==='tpre'){
+    var p2=v('t-p'),r2=v('t-r'),e2=s.t==='tpre'?v('t-e'):'';
+    if(!p2||!r2){bail('Fill in your point and your reason, then check.');return}
+    checks=checkPRE(p2,r2,e2);
+    model='<p><b>Point.</b> '+esc(s.sample.p)+'</p><p><b>Reason.</b> '+esc(s.sample.r)+'</p>'+(s.sample.e?'<p><b>Example.</b> '+esc(s.sample.e)+'</p>':'');
+    if(s.t==='tpre'&&!e2)extra='<p class="tip">You skipped the optional example. Add one when you have a real moment for bonus XP.</p>';
+  }else if(s.t==='tun'){
+    var u=v('un-text');if(!u){bail('Write your rewrite first, then check.');return}
+    checks=checkUntangle(u,s.item);model='<p>'+esc(s.item.model)+'</p><p class="tip">Other good rewrites exist. Compare the sentence lengths.</p>';
+  }else if(s.t==='tcl'){
+    var c=v('cl-text');if(!c){bail('Write your rewrite first, then check.');return}
+    checks=checkClean(c,s);model='<p>'+esc(s.model)+'</p>';
+  }else{
+    var tx=v('say-text');
+    if(words(tx).length<5){bail('Add what you said first. Dictate with your keyboard mic or type it up from a recording.');return}
+    var a=analyzeTalk(tx);
+    if(a.needsPunct){bail('Your text has '+a.wc+' words and no periods. Add a period wherever you paused, then check again. Finding those breaks is part of the exercise.');return}
+    checks=a.checks;per=8;bonus=10;talk=a;extra=talkExtra(a);
+    model='<p>Open with the point in one sentence. Give the reason. Then one example with a number or a name. Pause between sentences instead of saying "um".</p>';
+  }
+  var got=checks.filter(function(k){return k.ok}).length,all=got===checks.length,first=!x.awarded,xp=0;
+  if(first){
+    x.awarded=true;x.final=true;
+    xp=got*per+(all?bonus:0);gain(xp);
+    LS.cg+=got;LS.ct+=checks.length;LS.done++;updateProg();
+    if(talk){S.talk.push({d:todayStr(),per100:talk.per100,avg:talk.avg,words:talk.wc});S.talk=S.talk.slice(-12);checkBadges(ctxNow(talk))}
+    save();flushToast();
+  }
+  var ratio=got/checks.length,tone=all?'good':(ratio>=0.6?'mid':'bad');
+  var head=all?rnd(PRAISE):(tone==='mid'?'Almost there':'Let us tighten it');
+  showSheet(tone,head,first?xp:0,'<p><b>'+got+' of '+checks.length+' checks passed.</b>'+(first?'':' Re-check: no extra XP.')+'</p>'+checksHTML(checks)+extra+'<details><summary>See a sample answer</summary>'+model+'</details>',true,isLast()?'Finish':'Continue');
+}
+function advanceLesson(){
+  LS.pos++;
+  if(LS.pos>=LS.queue.length){finishLesson();return}
+  loadStep();go({name:'lesson'});
+}
+function finishLesson(){
+  var bonus=20+(LS.miss===0?10:0);
+  gain(bonus);
+  S.lessons[LS.id]=1;S.done+=1;if(LS.miss===0)S.perfect+=1;
+  markDay();checkBadges(ctxNow(null));
+  save();flushToast();
+  go({name:'ldone'});
+}
+function ldoneHTML(){
+  var den=LS.scored+LS.ct,acc=den?Math.round((LS.first+LS.cg)/den*100):100,st=streakOf(S.days,todayStr());
+  var nxt=ALL[LS.f.i+1];
+  return '<div class="done"><span class="eyebrow">Unit '+LS.f.u.n+' · '+esc(LS.f.l.title)+'</span><h1><span class="hl">Lesson</span> complete</h1>'+
+    strip([['XP earned',LS.xp],['Accuracy',acc+'%'],['Day streak',st]])+
+    '<div class="btns col2">'+(nxt?'<button class="btn" data-action="lesson" data-id="'+nxt.l.id+'">Next lesson</button><button class="btn ghost" data-action="home">Back to path</button>':'<button class="btn" data-action="home">Back to path</button>')+'</div></div>';
+}
+
+// ---------- free practice drills ----------
+function pickItem(s){
+  var arr=DECK[s.kind],i;
+  do{i=Math.floor(Math.random()*arr.length)}while(s.used.indexOf(i)>=0&&s.used.length<arr.length);
+  s.used.push(i);
+  return arr[i];
+}
+function startSession(kind){
+  cur={kind:kind,rounds:drillOf(kind).rounds,round:1,used:[],xp:0,got:0,total:0,awarded:false};
+  cur.item=pickItem(cur);
+}
+function awardDrill(kind,checks,per,bonus,talk){
+  var got=checks.filter(function(c){return c.ok}).length,all=got===checks.length;
+  var xp=got*per+(all?bonus:0);
+  addXP(xp);markDay();
+  S.done+=1;S.kinds[kind]=1;if(all)S.perfect+=1;
+  if(talk){S.talk.push({d:todayStr(),per100:talk.per100,avg:talk.avg,words:talk.wc});S.talk=S.talk.slice(-12)}
+  checkBadges(ctxNow(talk));
+  save();flushToast();
+  return xp;
+}
+function drillHTML(){
+  var k=cur.kind,it=cur.item,d=drillOf(k),pct=(cur.round-1)/cur.rounds*100;
+  var top='<div class="lhead"><div class="ltop"><button class="quit" data-action="home" aria-label="Quit practice">'+ico('x',16)+'<span>Exit</span></button><div class="prog" role="progressbar" aria-label="Practice progress" aria-valuemin="0" aria-valuemax="'+cur.rounds+'" aria-valuenow="'+(cur.round-1)+'"><i style="width:'+pct+'%"></i></div><span class="rc">'+cur.round+'/'+cur.rounds+'</span></div>'+
+    '<p class="eyebrow">Free practice · '+esc(it.tag)+'</p></div><h2 class="ltitle">'+d.title+'</h2>';
+  var body='';
+  if(k==='point'){
+    body='<p style="font-size:1.25rem;font-weight:800">'+esc(it.q)+'</p>'+
+      field('pf-point','Point','The answer in one sentence. Say it before you explain it.',2)+
+      field('pf-reason','Reason','Why is that true? One sentence.',2)+
+      field('pf-example','Example (optional)','Skip it, or add a number, a name, or a day for bonus points.',3)+
+      '<div class="btns"><button class="btn" data-action="check">Check</button></div>';
+  }else if(k==='untangle'){
+    body='<p>Rewrite this as short sentences. Keep every fact. Cut the filler.</p><blockquote class="tangle">'+esc(it.text)+'</blockquote>'+
+      field('un-text','Your rewrite','Each sentence 16 words or fewer, with at most one comma.',5)+
+      '<div class="btns"><button class="btn" data-action="check">Check</button></div>';
+  }else if(k==='concrete'){
+    body='<p>This sentence is vague. Rewrite it so a listener could picture it.</p><blockquote class="tangle">'+esc(it.text)+'</blockquote><p><b>Your job:</b> '+esc(it.ask)+'</p>'+
+      field('cn-text','Your rewrite','One or two sentences.',3)+
+      '<div class="btns"><button class="btn" data-action="check">Check</button></div>';
+  }else{
+    body=speakHTML(it.q)+'<div class="btns"><button class="btn" data-action="check">Check</button></div>';
+  }
+  return top+body+'<div id="result"></div><div id="fb"></div>';
+}
+function runCheck(){
+  var k=cur.kind,it=cur.item,out=$('#result'),checks,per,bonus,model,extra='',talk=null;
+  out.innerHTML='';
+  if(k==='point'){
+    var p=v('pf-point'),r=v('pf-reason'),e=v('pf-example');
+    if(!p||!r){out.innerHTML=warnHTML('Fill in your point and your reason, then check. The example is optional.');return}
+    checks=checkPRE(p,r,e);per=5;bonus=10;
+    model='<p><b>Point.</b> '+esc(it.m.p)+'</p><p><b>Reason.</b> '+esc(it.m.r)+'</p><p><b>Example.</b> '+esc(it.m.e)+'</p><p class="tip">Yours can be completely different. The shape is what matters.</p>';
+    if(!e)extra='<p class="tip">You skipped the optional example. Add one when you have a real moment.</p>';
+  }else if(k==='untangle'){
+    var u=v('un-text');
+    if(!u){out.innerHTML=warnHTML('Write your rewrite first, then check.');return}
+    checks=checkUntangle(u,it);per=4;bonus=10;
+    model='<p>'+esc(it.model)+'</p><p class="tip">Other good rewrites exist. Compare the sentence lengths.</p>';
+  }else if(k==='concrete'){
+    var c=v('cn-text');
+    if(!c){out.innerHTML=warnHTML('Write your rewrite first, then check.');return}
+    checks=checkConcrete(c,it);per=5;bonus=10;
+    model='<p>'+esc(it.model)+'</p><p class="tip">Use your own real numbers and names.</p>';
+  }else{
+    var tx=v('say-text');
+    if(words(tx).length<5){out.innerHTML=warnHTML('Add what you said first. Dictate with your keyboard mic or type it up from a recording.');return}
+    var a=analyzeTalk(tx);
+    if(a.needsPunct){out.innerHTML=warnHTML('Your text has '+a.wc+' words and no periods. Add a period wherever you paused, then check again. Finding those breaks is part of the exercise.');return}
+    checks=a.checks;per=8;bonus=10;talk=a;extra=talkExtra(a);
+    model='<p>Open with the point in one sentence. Give the reason. Then one example with a number or a name. Pause between sentences instead of saying "um".</p>';
+  }
+  var first=!cur.awarded,xp=0,got=checks.filter(function(x){return x.ok}).length;
+  if(first){
+    xp=awardDrill(k,checks,per,bonus,talk);cur.awarded=true;cur.xp+=xp;cur.got+=got;cur.total+=checks.length;
+    var bar=$('.prog i');if(bar)bar.style.width=(cur.round/cur.rounds*100)+'%';
+  }
+  var ratio=got/checks.length,tone=got===checks.length?'good':(ratio>=0.6?'mid':'bad');
+  var head={good:'Perfect',mid:'Almost there',bad:'Let us tighten it'}[tone];
+  var last=cur.round>=cur.rounds;
+  var inner='<p><b>'+got+' of '+checks.length+' checks passed.</b>'+(first?'':' Re-check: no extra XP.')+'</p>'+checksHTML(checks)+extra+'<details><summary>See a model answer</summary>'+model+'</details>';
+  var btns='<div class="btns"><button class="btn ghost" data-action="retry">Try again</button><button class="btn" data-action="advance">'+(last?'Finish':'Continue')+'</button></div>';
+  var fb=$('#fb');
+  fb.innerHTML=fbHTML(tone,head,first?xp:0,inner,btns);
+  fb.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function advanceDrill(){
+  if(cur.round<cur.rounds){cur.round++;cur.item=pickItem(cur);cur.awarded=false;go({name:'drill'})}
+  else go({name:'done'});
+}
+function doneHTML(){
+  var acc=cur.total?Math.round(cur.got/cur.total*100):0;
+  return '<div class="done"><span class="eyebrow">Free practice · '+drillOf(cur.kind).name+'</span><h1><span class="hl">Practice</span> complete</h1>'+
+    strip([['Total XP',cur.xp],['Checks passed',acc+'%'],['Rounds',cur.rounds]])+
+    '<div class="btns col2"><button class="btn" data-action="home">Continue</button><button class="btn ghost" data-action="open" data-kind="'+cur.kind+'">Practice again</button></div></div>';
+}
+
+// ---------- shell ----------
+function render(){
+  var app=$('#app'),n=view.name;
+  app.classList.toggle('lesson',n==='lesson');
+  document.body.classList.toggle('inlesson',n==='lesson');
+  app.innerHTML=n==='home'?homeHTML():(n==='done'?doneHTML():(n==='ldone'?ldoneHTML():(n==='lesson'?lessonHTML():drillHTML())));
+  if(n==='lesson')paintStep();
+}
+function go(vw){stopTimer();view=vw;render();window.scrollTo(0,0)}
+
+document.addEventListener('click',function(e){
+  var b=e.target.closest('[data-action]');if(!b)return;
+  var a=b.dataset.action,x=LS&&LS.sx,s;
+  if(a==='home')go({name:'home'});
+  else if(a==='open'){startSession(b.dataset.kind);go({name:'drill'})}
+  else if(a==='advance')advanceDrill();
+  else if(a==='check')runCheck();
+  else if(a==='timer')toggleTimer();
+  else if(a==='retry'){
+    var fb=$('#fb');if(fb)fb.innerHTML='';
+    var ta=document.querySelector('textarea');if(ta){ta.scrollIntoView({behavior:'smooth',block:'center'});ta.focus()}
+  }
+  else if(a==='lesson'){
+    var f=lessonById(b.dataset.id);
+    if(!f)return;
+    if(lessonState(f.i)==='lock'){toast('Finish the lesson before it to unlock this one.');return}
+    startLesson(b.dataset.id);go({name:'lesson'});
+  }
+  else if(a==='gotit'){LS.done++;advanceLesson()}
+  else if(a==='pick'){if(x&&!x.checked){x.sel=+b.dataset.i;paintStep()}}
+  else if(a==='place'){if(x&&!x.checked){x.placed.push(+b.dataset.i);paintStep()}}
+  else if(a==='unplace'){if(x&&!x.checked){x.placed.splice(+b.dataset.i,1);paintStep()}}
+  else if(a==='tok'){if(x&&!x.checked){var i=+b.dataset.i;x.sel[i]=!x.sel[i];paintStep()}}
+  else if(a==='lcheck'){
+    s=LS.queue[LS.pos].s;
+    if(s.t==='mc'||s.t==='order'||s.t==='tap')checkChoice();else checkTyped();
+  }
+  else if(a==='lnext'){hideSheet();advanceLesson()}
+  else if(a==='lretry'){
+    hideSheet();
+    var t2=document.querySelector('#stepbody textarea');if(t2){t2.scrollIntoView({behavior:'smooth',block:'center'});t2.focus()}
+  }
+  else if(a==='quit'){
+    if(LS&&(LS.done>0||LS.xp>0)&&!armedQuit){armedQuit=true;toast('Tap Exit again to quit. Progress in this lesson will be lost.');setTimeout(function(){armedQuit=false},3500)}
+    else{armedQuit=false;go({name:'home'})}
+  }
+  else if(a==='reset'){
+    if(!armed){armed=true;b.textContent='Tap again to erase everything';setTimeout(function(){armed=false;var rb=$('#resetBtn');if(rb)rb.textContent='Reset progress'},4000)}
+    else{armed=false;S=blank();save();render();toast('Progress erased')}
+  }
+});
+render();
+</script>
+<script>
+if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0){
+  window.addEventListener('load',function(){try{navigator.serviceWorker.register('sw.js').catch(function(){})}catch(e){}});
+}
+</script>
+</body>
+</html>
